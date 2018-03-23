@@ -17,6 +17,8 @@ import android.widget.Button;
  * @author Devin Smith
  * @version March 2018
  *
+ * added buttons to change paddle size
+ *
  */
 public class MainActivity extends Activity implements View.OnClickListener{
 

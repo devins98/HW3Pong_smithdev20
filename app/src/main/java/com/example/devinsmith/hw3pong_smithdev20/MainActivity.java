@@ -2,10 +2,8 @@ package com.example.devinsmith.hw3pong_smithdev20;
 
 import android.os.Bundle;
 import android.app.Activity;
-import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
-import android.widget.LinearLayout;
 
 /**
  * PongMainActivity
@@ -25,7 +23,6 @@ public class MainActivity extends Activity implements View.OnClickListener{
     private Button smallButton, medButton, largeButton;
     private ImplementAnimation animation;
 
-
     /**
      * creates an AnimationSurface containing a TestAnimator.
      */
@@ -38,12 +35,17 @@ public class MainActivity extends Activity implements View.OnClickListener{
         AnimationSurface mySurface = (AnimationSurface) this.findViewById(R.id.animationSurface);
         animation = new ImplementAnimation();
         mySurface.setAnimator(animation);
+        animation.reset();
+
 
         //buttons for paddle size
         smallButton = (Button)findViewById(R.id.smallPaddleButton);
         medButton = (Button)findViewById(R.id.medPaddleButton);
         largeButton = (Button)findViewById(R.id.largePaddleButton);
 
+
+        //will set paddle size based on button pressed
+        //when the game starts the paddle will be the small size
         smallButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {

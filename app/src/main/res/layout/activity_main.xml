@@ -31,9 +31,15 @@
             android:id="@+id/buttonLayout"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:gravity="center"
             android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/ballMessage"
+                android:layout_width="325dp"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="50sp"
+                android:gravity="center"
+                android:text="Please tap screen for new ball." />
 
             <Button
                 android:id="@+id/smallPaddleButton"

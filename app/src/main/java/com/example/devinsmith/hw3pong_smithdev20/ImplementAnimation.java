@@ -15,9 +15,12 @@ import java.util.Random;
  */
 
 public class ImplementAnimation implements Animator {
-    private int xCoord, yCoord, xCount, yCount, paddleWidth, paddleR, paddleL;
+    private int x, y, xCount, yCount, paddleWidth, paddleR, paddleL;
+    private double speed;
     private boolean goBackwardsX, goBackwardsY;
     private boolean paused;
+    private Random rand;
+
 
     @Override
     public int interval() {
@@ -26,6 +29,7 @@ public class ImplementAnimation implements Animator {
 
     /**
      * colors the background
+     *
      * @return background color
      */
     @Override
@@ -45,6 +49,7 @@ public class ImplementAnimation implements Animator {
 
     /**
      * draws the ball and the walls and paddle
+     *
      * @param canvas
      */
     @Override
@@ -77,78 +82,81 @@ public class ImplementAnimation implements Animator {
         //draws ball
         Paint ballColor = new Paint();
         ballColor.setColor(Color.RED);
-        if (yCoord == 1300) {
+        if (y == 1300) {
+            canvas.drawCircle(x, 1400f, 100f, ballColor);
+            paused = true;
 
         } else {
-            xCoord = getXCoordinate(xCount);
+            x = getX(xCount);
 
-            yCoord = getYCoordinate(yCount);
+            y = getY(yCount);
         }
 
-        canvas.drawCircle(xCoord, yCoord, 100f, ballColor);
+
+        canvas.drawCircle(x, y, 100f, ballColor);
 
 
-        if (yCoord == 900) {
-            if (xCoord >= paddleL && xCoord <= paddleR) {
+        if (y == 900) {
+            if (x >= paddleL-25 && x <= paddleR+25) {
                 goBackwardsY = true;
-            } else if (xCoord < paddleL || xCoord > paddleR) {
+            } else if (x < paddleL || x > paddleR) {
                 goBackwardsY = false;
-                if (yCoord == 1100) {
-                    // paused = true;
-                    yCoord = 1300;
+                if (y == 1100) {
+                    paused = true;
+                    y = 1300;
                 }
             }
         }
 
     }
-    public int getVelocity(){
-        return 0;
-    }
 
-    public int randomVelocity(){
-        return 0;
+    public void setVelocity() {
+        Random rand = new Random();
+        //speed = rand.nextFloat(1.0f);
     }
-
 
     /**
      * getXCoordinate moves the ball in the x direction, if the ball hits a wall then
      * it will change directions
-     * @return xCoord
+     *
+     * @return x
      */
-    public int getXCoordinate(int xCoord) {
-        xCoord = (xCoord * 20) % 1850;
+    public int getX(int xCount) {
+        x = (xCount * 20) % 1850;
 
-        if (xCoord == 200) {
+        if (x == 200) {
             goBackwardsX = false;
-            return xCoord;
+            return x;
         }
 
-        if (xCoord == 1800) {
+        if (x == 1800) {
             goBackwardsX = true;
-            return xCoord;
+            return x;
         }
-        return xCoord;
+        return x;
     }
 
     /**
      * getYCoordinate moves the ball in the y direction, if the ball hits a wall or the paddle then
      * it will change directions
-     * @param yCoord
-     * @return yCoord
+     *
+     * @param yCount
+     * @return y
      */
-    public int getYCoordinate(int yCoord) {
-        yCoord = (yCoord * 20) % 1850;
+    public int getY(int yCount) {
+        y = (yCount * 20) % 1850;
 
-        if (yCoord == 200) {
+        if (y == 200) {
             goBackwardsY = false;
-            return yCoord;
+            return y;
         }
-        return yCoord;
+        return y;
     }
 
 
     /**
      * sets paddle width based on button selection
+     *
      * @param width
      */
     public void setPaddleWidth(int width) {
@@ -167,23 +175,31 @@ public class ImplementAnimation implements Animator {
     }
 
     /**
-     *calls random x and y when
+     * calls random x and y when
      */
     public void reset() {
         randomX();
+        randomXDir();
         randomY();
-
-        paused = false;
+        randomYDir();
+        setVelocity();
     }
 
     /**
-     * randomX will set both the x coordinates and the horizontal direction for the new ball
+     * randomX will set the x coordinates for the new ball
      */
     public void randomX() {
-        Random rand = new Random();
-        // xCount = rand.nextInt(1650) + 200;
-        // xCount = xCoord/20;
+        rand = new Random();
+        x = rand.nextInt(1600) + 300;
+        xCount = x / 20;
 
+    }
+
+    /**
+     * randomXDir will randomly set the horizontal direction for the new ball
+     */
+    public void randomXDir() {
+        rand = new Random();
         int randCoord = rand.nextInt(2);
         if (randCoord == 0) {
             goBackwardsX = true;
@@ -193,13 +209,20 @@ public class ImplementAnimation implements Animator {
     }
 
     /**
-     * randomY will set both the y coordinates and the vertical direction for the new ball
+     * randomY will set the y coordinates for the new ball
      */
     public void randomY() {
-        Random rand = new Random();
-        //yCount = rand.nextInt(800) + 200;
-        //yCount = yCoord/20;
+        rand = new Random();
+        y = rand.nextInt(760) + 300;
+        yCount = y / 20;
 
+    }
+
+    /**
+     * randomYDir will randomly set the vertical direction for the new ball
+     */
+    public void randomYDir() {
+        rand = new Random();
         int randCoord = rand.nextInt(2);
         if (randCoord == 0) {
             goBackwardsY = true;
@@ -208,23 +231,25 @@ public class ImplementAnimation implements Animator {
         }
     }
 
-
-    //external citation
-    //https://stackoverflow.com/questions/3476779/how-to-get-the-touch-position-in-android
+    /**
+     * External citation:
+     * Date: 3-16-18
+     * Problem: Couldn't figure out how to get position of tap
+     * Resource:https://stackoverflow.com/questions/3476779/how-to-get-the-touch-position-in-android
+     * Solution:Although I won't use this until later I found but commented out sample code
+     */
     @Override
     public void onTouch(MotionEvent event) {
-        // Random rand = new Random();
-        //  xCoord = rand.nextInt(1650) + 200;
-        //yCoord = rand.nextInt(800) + 200;
-        randomY();
-        randomX();
 
+        //int x = (int)event.getX();
+        //  int y = (int)event.getY();
+        reset();
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_MOVE:
             case MotionEvent.ACTION_UP:
 
-                // paused = false;
+                paused = false;
 
         }
     }

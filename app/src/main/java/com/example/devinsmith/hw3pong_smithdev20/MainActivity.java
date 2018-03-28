@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 /**
  * PongMainActivity
@@ -21,8 +22,7 @@ import android.widget.Button;
  *
  */
 public class MainActivity extends Activity implements View.OnClickListener{
-
-    private Button smallButton, medButton, largeButton;
+    private Button smallButton, medButton, largeButton, newBallButton;
     private ImplementAnimation animation;
 
     /**
@@ -38,12 +38,13 @@ public class MainActivity extends Activity implements View.OnClickListener{
         animation = new ImplementAnimation();
         mySurface.setAnimator(animation);
         animation.reset();
-
+        animation.getRemaining(5);
 
         //buttons for paddle size
         smallButton = (Button)findViewById(R.id.smallPaddleButton);
         medButton = (Button)findViewById(R.id.medPaddleButton);
         largeButton = (Button)findViewById(R.id.largePaddleButton);
+        newBallButton = (Button)findViewById(R.id.newButton);
 
 
         //will set paddle size based on button pressed
@@ -60,7 +61,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
             @Override
             public void onClick(View view) {
                 if (medButton.isPressed()) {
-                    animation.setPaddleWidth(450);
+                    animation.setPaddleWidth(900);
                 }
             }
         });
@@ -68,10 +69,19 @@ public class MainActivity extends Activity implements View.OnClickListener{
             @Override
             public void onClick(View view) {
                 if (largeButton.isPressed()) {
-                    animation.setPaddleWidth(300);
+                    animation.setPaddleWidth(1200);
                 }
             }
         });
+        newBallButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                if (newBallButton.isPressed()){
+                    animation.reset();
+                }
+            }
+        });
+
     }
 
     @Override

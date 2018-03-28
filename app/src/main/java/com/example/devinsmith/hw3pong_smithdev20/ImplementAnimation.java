@@ -15,8 +15,7 @@ import java.util.Random;
  */
 
 public class ImplementAnimation implements Animator {
-    private int x, y, xCount, yCount, paddleWidth, paddleR, paddleL;
-    private double speed;
+    private int x, y, xCount, yCount, paddleWidth, paddleR, paddleL, paddleCenter, score, ballRemain;
     private boolean goBackwardsX, goBackwardsY;
     private boolean paused;
     private Random rand;
@@ -79,40 +78,58 @@ public class ImplementAnimation implements Animator {
         paddleCoords();
         canvas.drawRect(paddleR, 1000f, paddleL, 1300f, wallColor);//paddle
 
-        //draws ball
-        Paint ballColor = new Paint();
-        ballColor.setColor(Color.RED);
-        if (y == 1300) {
-            canvas.drawCircle(x, 1400f, 100f, ballColor);
+        Paint end = new Paint();
+        end.setColor(Color.rgb(0, 26, 255));
+        end.setTextSize(150);
+
+        if (ballRemain == 0) {
             paused = true;
-
-        } else {
-            x = getX(xCount);
-
-            y = getY(yCount);
+            y = 1300;
+            canvas.drawText("YOU LOSE", 700, 450, end );
         }
 
+        else {
+            //draws ball
+            Paint ballColor = new Paint();
+            ballColor.setColor(Color.RED);
+            if (y == 1300) {
+                canvas.drawCircle(x, 1400f, 100f, ballColor);
+                paused = true;
 
-        canvas.drawCircle(x, y, 100f, ballColor);
+            } else {
+                x = getX(xCount);
+
+                y = getY(yCount);
+            }
+            canvas.drawCircle(x, y, 100f, ballColor);
+        }
 
 
         if (y == 900) {
-            if (x >= paddleL-25 && x <= paddleR+25) {
+            if (x >= paddleL - 25 && x <= paddleR + 25) {
                 goBackwardsY = true;
-            } else if (x < paddleL || x > paddleR) {
-                goBackwardsY = false;
-                if (y == 1100) {
-                    paused = true;
-                    y = 1300;
-                }
+                score++;
             }
         }
 
-    }
+        if (y == 1200) {
+            ballRemain--;
+            y = 1500;
+            paused = true;
 
-    public void setVelocity() {
-        Random rand = new Random();
-        //speed = rand.nextFloat(1.0f);
+        }
+
+        Paint black = new Paint();
+        black.setColor(Color.BLACK);
+        black.setTextSize(100f);
+        canvas.drawText("Score: " + score, 20, 80, black);
+        canvas.drawText("Remaining Balls: " + ballRemain, 1200, 80, black);
+
+        if(score == 20){
+            canvas.drawText("YOU WIN", 700, 450, end );
+
+        }
+
     }
 
     /**
@@ -164,25 +181,35 @@ public class ImplementAnimation implements Animator {
     }
 
     /**
-     * gives coordinates by using paddleWidth
+     * gives coordinates by using paddleWidth,
+     * if no button was selected the small size one will be set
      */
     public void paddleCoords() {
+        int midPad = paddleWidth / 2;
+
         if (paddleWidth == 0) {
             paddleWidth = 600;
+            midPad = 300;
         }
-        paddleR = 2050 - paddleWidth;
-        paddleL = paddleWidth;
+
+        paddleR = paddleCenter + midPad;
+        paddleL = paddleCenter - midPad;
     }
 
     /**
-     * calls random x and y when
+     * calls random x and y and both directions
      */
     public void reset() {
+        // ballRemain = ballsRemaining;
         randomX();
         randomXDir();
         randomY();
         randomYDir();
-        setVelocity();
+        paused = false;
+    }
+
+    public void getRemaining(int ballRemaining) {
+        ballRemain = ballRemaining;
     }
 
     /**
@@ -192,7 +219,6 @@ public class ImplementAnimation implements Animator {
         rand = new Random();
         x = rand.nextInt(1600) + 300;
         xCount = x / 20;
-
     }
 
     /**
@@ -231,26 +257,26 @@ public class ImplementAnimation implements Animator {
         }
     }
 
+   /* public int getRemaining(){
+        return ballRemain;
+    }*/
+
     /**
      * External citation:
      * Date: 3-16-18
      * Problem: Couldn't figure out how to get position of tap
      * Resource:https://stackoverflow.com/questions/3476779/how-to-get-the-touch-position-in-android
-     * Solution:Although I won't use this until later I found but commented out sample code
+     * Solution:the code below
      */
     @Override
     public void onTouch(MotionEvent event) {
 
-        //int x = (int)event.getX();
-        //  int y = (int)event.getY();
-        reset();
+        paddleCenter = (int) event.getX();
+
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_MOVE:
             case MotionEvent.ACTION_UP:
-
-                paused = false;
-
         }
     }
 }

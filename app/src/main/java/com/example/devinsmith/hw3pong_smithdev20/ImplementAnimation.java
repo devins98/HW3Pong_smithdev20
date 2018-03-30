@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.view.MotionEvent;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 /**
@@ -15,7 +16,14 @@ import java.util.Random;
  */
 
 public class ImplementAnimation implements Animator {
-    private int x, y, xCount, yCount, paddleWidth, paddleR, paddleL, paddleCenter, score, ballRemain;
+    private int x, y, xCount, yCount, paddleWidth, paddleR, paddleL, paddleCenter, score, ballRemain, wallIndex;
+    private ArrayList<Integer> wallList = new ArrayList<Integer>();
+    /**
+     * External Citation:
+     * Problem: I couldn't make array list with int
+     * Citation: https://stackoverflow.com/questions/18021218/create-a-list-of-primitive-int
+     * Solution: use Integer
+     */
     private boolean goBackwardsX, goBackwardsY;
     private boolean paused;
     private Random rand;
@@ -53,6 +61,8 @@ public class ImplementAnimation implements Animator {
      */
     @Override
     public void tick(Canvas canvas) {
+        Paint scoreColor = new Paint();
+        scoreColor.setColor(Color.rgb(0, 255, 137));
 
         if (goBackwardsX) {
             xCount--;
@@ -66,13 +76,10 @@ public class ImplementAnimation implements Animator {
             yCount++;
         }
 
-
-        //draws the walls
+        //draw walls
         Paint wallColor = new Paint();
         wallColor.setColor(Color.WHITE);
-        canvas.drawRect(0f, 0f, 100f, 1500f, wallColor);//left wall
-        canvas.drawRect(1950f, 0f, 2050f, 1500f, wallColor);//right wall
-        canvas.drawRect(0f, 0f, 2000f, 100f, wallColor);//top wall
+        drawWalls(canvas, wallColor);
 
         //draws paddle
         paddleCoords();
@@ -85,51 +92,48 @@ public class ImplementAnimation implements Animator {
         if (ballRemain == 0) {
             paused = true;
             y = 1300;
-            canvas.drawText("YOU LOSE", 700, 450, end );
-        }
-
-        else {
+            canvas.drawText("YOU LOSE", 700, 450, end);
+        } else {
             //draws ball
             Paint ballColor = new Paint();
             ballColor.setColor(Color.RED);
+
             if (y == 1300) {
                 canvas.drawCircle(x, 1400f, 100f, ballColor);
                 paused = true;
-
-            } else {
+            }
+            else {
                 x = getX(xCount);
-
                 y = getY(yCount);
             }
             canvas.drawCircle(x, y, 100f, ballColor);
         }
 
+        scoreColor.setTextSize(75f);
+        canvas.drawText("Score: " + score, 20, 80, scoreColor);
+        canvas.drawText("Remaining Balls: " + ballRemain, 1400, 80, scoreColor);
 
-        if (y == 900) {
-            if (x >= paddleL - 25 && x <= paddleR + 25) {
-                goBackwardsY = true;
-                score++;
-            }
+        if (score == 10) {
+            canvas.drawText("YOU WIN", 700, 450, end);
         }
 
-        if (y == 1200) {
-            ballRemain--;
-            y = 1500;
-            paused = true;
+    }
 
-        }
-
+    /**
+     * draws the walls
+     * @param canvas
+     * @param wallColor
+     */
+    public void drawWalls(Canvas canvas, Paint wallColor){
+        canvas.drawRect(0f, 0f, 2000f, 100f, wallColor);//top wall
         Paint black = new Paint();
         black.setColor(Color.BLACK);
-        black.setTextSize(100f);
-        canvas.drawText("Score: " + score, 20, 80, black);
-        canvas.drawText("Remaining Balls: " + ballRemain, 1200, 80, black);
 
-        if(score == 20){
-            canvas.drawText("YOU WIN", 700, 450, end );
-
+        for (int i = 0; i < wallList.size(); i++) {
+            canvas.drawRect(wallList.get(i)-100, 0, wallList.get(i) + 100, 200, black);
         }
-
+        canvas.drawRect(0f, 0f, 100f, 1500f, wallColor);//left wall
+        canvas.drawRect(1950f, 0f, 2050f, 1500f, wallColor);//right wall
     }
 
     /**
@@ -150,6 +154,7 @@ public class ImplementAnimation implements Animator {
             goBackwardsX = true;
             return x;
         }
+
         return x;
     }
 
@@ -163,13 +168,47 @@ public class ImplementAnimation implements Animator {
     public int getY(int yCount) {
         y = (yCount * 20) % 1850;
 
-        if (y == 200) {
-            goBackwardsY = false;
-            return y;
+        if (y <= 200) {
+            if (checkWall(x)) {
+                ballOut();
+                return y;
+            }
+            else if( !checkWall(x)) {
+                goBackwardsY = false;
+                wallList.add(x);
+                wallIndex++;
+                return y;
+            }
+
+        }
+
+        //if ball hits paddle
+        if (y == 900) {
+            if (x >= paddleL - 25 && x <= paddleR + 25) {
+                goBackwardsY = true;
+                score++;
+            }
+        }
+        //if the ball leaves the platform
+        if (y == 1200) {
+            ballOut();
         }
         return y;
     }
 
+    /**
+     * checks if that piece of wall is still there
+     * @param x
+     * @return
+     */
+    public boolean checkWall(int x) {
+        for (int i = 0; i < wallList.size(); i++) {
+            if (x >= wallList.get(i) -100  && x <= wallList.get(i) + 100) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * sets paddle width based on button selection
@@ -196,11 +235,16 @@ public class ImplementAnimation implements Animator {
         paddleL = paddleCenter - midPad;
     }
 
+    public void ballOut() {
+        ballRemain--;
+        y = 1500;
+        paused = true;
+    }
+
     /**
      * calls random x and y and both directions
      */
     public void reset() {
-        // ballRemain = ballsRemaining;
         randomX();
         randomXDir();
         randomY();
@@ -256,10 +300,6 @@ public class ImplementAnimation implements Animator {
             goBackwardsY = false;
         }
     }
-
-   /* public int getRemaining(){
-        return ballRemain;
-    }*/
 
     /**
      * External citation:

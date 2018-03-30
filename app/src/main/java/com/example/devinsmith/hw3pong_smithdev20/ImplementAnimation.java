@@ -179,7 +179,6 @@ public class ImplementAnimation implements Animator {
                 wallIndex++;
                 return y;
             }
-
         }
 
         //if ball hits paddle
